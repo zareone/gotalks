@@ -1,0 +1,102 @@
+Web Services: Go for it!
+Tags: web, services, golang, http, json
+
+Daniel Blanco
+Web Developer, Simplify Your Business
+@zareone
+
+* Web services
+
+Go is a great language for building web services
+
+It has (mostly) everything you need in the standard library:
+
+- HTTP client / server (*net/http*)
+- JSON encoding / decoding (*encoding/json*)
+- XML encoding / decoding (*encoding/xml*)
+- HTML templates (*html/template*)
+- SMTP protocol (*net/smtp*)
+- And many more...
+
+* Our first HTTP server
+
+Let's see an example of a minimal HTTP server...
+
+.play webservices/http.go
+
+
+
+* The HTTP Handler Interface
+
+A fundamental piece of HTTP servers in Go is the *http.Handler* interface
+
+Any type that satisfies this interface can be registered as an HTTP handler to serve requests
+
+.code webservices/handler.go
+
+Note ResponseWriter is also an interface, not an actual type
+
+.code webservices/response_writer.go
+
+
+
+* The HandlerFunc type
+
+*http.HandlerFunc* type, can be used to adapt functions with the proper signature to satisfy the *Handler* interface
+
+.code webservices/handlerfunc.go
+
+
+
+* The HandlerFunc type
+
+Example:
+
+.play webservices/handlerfunc_example.go /START OMIT/,/END OMIT/
+
+
+
+* Registering handlers to routes
+
+We can use http.Handle and http.HandleFunc to register handlers to routes
+
+.play webservices/routes.go /START OMIT/,/END OMIT/
+
+
+
+
+* TODO:
+
+- Registering routes and handlers
+- Retrieving data from the URL path
+- Retrieving data from the query string
+- Handling different HTTP methods
+- Retrieving data from form fields
+- File uploads
+- HTML views
+
+* TODO:
+
+- JSON responses
+- JSON in request payload (Body)
+- Creating request context
+- Custom handlers (context, returning errors)
+- Custom HTTP Errors
+- Separation of concerns (http as an interface to the model)
+
+* Useful libraries
+
+- Request muxers / routers
+- HTTP Middleware
+- Template engines
+- Database connectors
+- JSON marshaling / unmarshaling
+- Web Frameworks
+- Response buffering
+- Sessions
+- Caching
+
+* References
+
+http://godoc.org/golang.org/x/tools/present
+https://code.google.com/p/go/source/browse/2012/chat.slide?repo=talks
