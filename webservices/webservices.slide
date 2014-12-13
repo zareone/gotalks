@@ -5,6 +5,10 @@ Daniel Blanco
 Web Developer, Simplify Your Business
 @zareone
 
+
+* Prelude
+
+
 * Web services
 
 Go is a great language for building web services
@@ -24,6 +28,9 @@ Let's see an example of a minimal HTTP server...
 
 .play webservices/http.go
 
+Check: [[http://localhost:8080]]
+
+* HTTP Handlers
 
 
 * The HTTP Handler Interface
@@ -32,11 +39,23 @@ A fundamental piece of HTTP servers in Go is the *http.Handler* interface
 
 Any type that satisfies this interface can be registered as an HTTP handler to serve requests
 
-.code webservices/handler.go
+ type Handler interface {
+   ServeHTTP(ResponseWriter, *Request)
+ }
+
 
 Note ResponseWriter is also an interface, not an actual type
 
-.code webservices/response_writer.go
+ type ResponseWriter interface {
+   // Header returns the header map that will be sent by WriteHeader.
+   Header() Header
+
+   // Write writes the data to the connection as part of an HTTP reply.
+   Write([]byte) (int, error)
+
+   // WriteHeader sends an HTTP response header with status code.
+   WriteHeader(int)
+ }
 
 
 
@@ -44,8 +63,11 @@ Note ResponseWriter is also an interface, not an actual type
 
 *http.HandlerFunc* type, can be used to adapt functions with the proper signature to satisfy the *Handler* interface
 
-.code webservices/handlerfunc.go
+ type HandlerFunc func(ResponseWriter, *Request)
 
+ func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
+   f(w, r)
+ }
 
 
 * The HandlerFunc type
@@ -63,17 +85,99 @@ We can use http.Handle and http.HandleFunc to register handlers to routes
 .play webservices/routes.go /START OMIT/,/END OMIT/
 
 
+* Retrieving data (Part I)
 
 
-* TODO:
+* Data from URL path
 
-- Registering routes and handlers
-- Retrieving data from the URL path
-- Retrieving data from the query string
-- Handling different HTTP methods
-- Retrieving data from form fields
-- File uploads
-- HTML views
+Using the *http.Request.URL* object, we can access the data from the URL
+
+ type URL struct {
+        Scheme   string
+        Opaque   string    // encoded opaque data
+        User     *Userinfo // username and password information
+        Host     string    // host or host:port
+        Path     string
+        RawQuery string // encoded query values, without '?'
+        Fragment string // fragment for references, without '#'
+ }
+
+A URL represents a parsed URL (technically, a URI reference). The general form represented is:
+
+ scheme://[userinfo@]host/path[?query][#fragment]
+
+
+
+* Data from URL path
+
+Example:
+
+.play webservices/urldata.go /START OMIT/,/END OMIT/
+
+Check: [[http://localhost:8080/one/two/three]]
+
+
+* Data from URL query
+
+The *http.Request.URL* object has a *Query()* method that will parse the query string,
+returning us a map of strings to *slice* of strings
+
+ type Values map[string][]string
+
+Why a *slice*? Why not just a map of string / string?
+
+Because we can have multiple values for the same parameter:
+
+ /foo?param=val1&param=val2
+
+* Data from URL query
+
+Example:
+
+.play webservices/urlquerydata.go /START OMIT/,/END OMIT/
+
+Check: [[http://localhost:8080/movies?director=Ridley%20Scott&genre=SciFi&genre=Horror]]
+
+
+* Rendering HTML
+
+* Rendering HTML
+
+Go includes the *html/template* package for safe (escaped) rendering of HTML templates.
+
+.code webservices/template.go /START_TPL OMIT/,/END_TPL OMIT/
+
+Variables and basic operations (if, if else, range, with...) are available inside templates, using tags in the form: *{{token}}*
+
+As you can see *(.Now.Format)*, methods can be invoked, but omitting parentheses
+
+
+* Rendering HTML
+
+When executing a template, an *io.Writer* and the context data (*interface{}*) should be provided
+
+.play webservices/template.go /START_HND OMIT/,/END_HND OMIT/
+
+Check [[http://localhost:8080/?name=Gopher]]
+
+
+* Posting form data
+
+
+* Posting form data
+
+Now that we have seen the basics of HTML rendering, let's make a simple form to upload an image file and some metadata for it
+
+
+* Posting form data
+
+HTTP handler:
+
+.play webservices/file_upload.go /START_HND OMIT/,/END_HND OMIT/
+
+Check [[http://localhost:8080]]
+
+
 
 * TODO:
 
