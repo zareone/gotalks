@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // START_TPL OMIT
@@ -38,12 +39,30 @@ var html = `
         <button type="submit" class="btn btn-default">Upload</button>
       </form>
 
-      {{range $f := .Files}}
-        <p>File: {{$f.Title}} <a href="/download/{{$f.ID}}">download</a></p>
-      {{else}}
-        <p>No files uploaded yet</p>
-      {{end}}
+      <h2>Uploaded files</h2>
 
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Upload Time</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+        {{range $f := .Files}}
+          <tr>
+            <td>{{$f.ID}}</td>
+            <td>{{$f.Title}}</td>
+            <td>{{$f.UploadTimeString }}</td>
+            <td><a href="/download/{{$f.ID}}">download</a></td>
+          </tr>
+        {{else}}
+          <tr><td colspan="4">No files uploaded yet</td></tr>
+        {{end}}
+        </tbody>
+      </table>
     </div>
   </body>
 </html>`
@@ -52,74 +71,83 @@ var html = `
 
 var tpl = template.Must(template.New("tpl").Parse(html))
 
+// START_UPHAND OMIT
+func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		handleErr(uploadFile(r))
+	}
+	data := struct {
+		Files map[string]*File
+	}{files}
+	handleErr(tpl.Execute(w, data))
+}
+
+// END_UPHAND OMIT
+
+// START_DOWNLOAD OMIT
+func downloadHandler(w http.ResponseWriter, r *http.Request) {
+	urlParts := strings.Split(r.URL.Path[1:], "/")
+	if len(urlParts) < 2 {
+		panic("Invalid ID in URL") // not the way to handle errors...
+	}
+	ID := urlParts[1]
+	f := files[ID] // Fetch the file from the map by its ID
+	if f == nil {
+		http.NotFound(w, r) // This error is handled more nicely (not perfect though)
+		return
+	}
+	_, err := w.Write(f.Content) // HL
+	if err != nil {
+		panic("Error writing file") // not the way to handle errors...
+	}
+}
+
+//END_DOWNLOAD OMIT
+
+// START_FILES OMIT
 type File struct {
 	ID          string
 	Title       string
 	ContentType string
 	Content     []byte
+	UploadTime  time.Time
+}
+
+func (f File) UploadTimeString() string {
+	return f.UploadTime.Format(time.RFC3339)
 }
 
 var files = make(map[string]*File, 0)
 
-// START_HND OMIT
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		handleErr(uploadFile(r))
-	}
+// END_FILES OMIT
 
-	data := struct {
-		Files map[string]*File
-	}{files}
-
-	handleErr(tpl.Execute(w, data))
-}
-
-// END_HND OMIT
-
-func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	urlParts := strings.Split(r.URL.Path[1:], "/")
-	if len(urlParts) < 2 {
-		panic("Invalid ID in URL")
-	}
-	ID := urlParts[1]
-	f := files[ID]
-	if f == nil {
-		http.NotFound(w, r)
-		return
-	}
-	_, err := w.Write(f.Content)
-	if err != nil {
-		panic("Error writing file")
-	}
-}
-
+// START_UPLOAD OMIT
 func uploadFile(r *http.Request) error {
-	f, fi, err := r.FormFile("upload")
+	f, fi, err := r.FormFile("upload") // HL
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-
-	content, err := ioutil.ReadAll(f)
+	defer f.Close()                   // HL
+	content, err := ioutil.ReadAll(f) // HL
 	if err != nil {
 		return err
 	}
-
 	ID, err := newUUID()
 	if err != nil {
 		return err
 	}
-
 	upload := &File{
 		ID:          ID,
 		Title:       r.FormValue("title"),
 		ContentType: fi.Header.Get("Content-Type"),
 		Content:     content,
+		UploadTime:  time.Now(),
 	}
-
-	files[upload.ID] = upload
+	files[upload.ID] = upload // A persistent storage should be used here
 	return nil
 }
+
+// END_UPLOAD OMIT
 
 func handleErr(err error) {
 	if err != nil {
@@ -142,9 +170,12 @@ func newUUID() (string, error) {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
 }
 
+// START_MAIN OMIT
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", uploadHandler)
 	mux.HandleFunc("/download/", downloadHandler)
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
+
+// END_MAIN OMIT
