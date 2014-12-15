@@ -6,8 +6,18 @@ Simplify Your Business
 @zareone
 
 
-* Prelude
+* 
 
+.image webservices/images/SYBLogo.png
+
+- Small internet company located in Barcelona.
+- Using Go for creating web services.
+- Our motto is:  _"Simple_solutions_to_complex_problems"_.
+
+.link https://twitter.com/simplifyourB @simplifyourB
+
+
+* Prelude
 
 * Web services
 
@@ -289,27 +299,33 @@ To reduce the boilerplate code, we can define a custom handler signature, and an
 .code webservices/custom_handlers.go /START_CUSTOM_HANDLER OMIT/,/END_CUSTOM_HANDLER OMIT/
 
 
-* Using custom HTTP handlers
+* Using custom HTTP errors
+
+Now that we have defined a custom handler signature which returns an error, we can define a custom error to represent HTTP errors:
+
+.code webservices/custom_handlers.go /START_HTTPERR OMIT/,/END_HTTPERR OMIT/
+
+
+* Putting it all together
 
 .code webservices/custom_handlers.go /START_MAIN OMIT/,/END_MAIN OMIT/
 
-* TODO:
 
-- Separation of concerns (http as an interface to the model)
 
-* Useful libraries
+* Life outside of the standard library 
 
-- Request muxers / routers
-- HTTP Middleware
-- Template engines
-- Database connectors
-- JSON marshaling / unmarshaling
-- Web Frameworks
-- Response buffering
-- Sessions
-- Caching
+As we've seen, the standard library covers a lot of what's needed in a web service.
 
-* References
+We've had a look at small subset of it, but there's much more (RPC, XML, SMTP, Auth...)
 
-http://godoc.org/golang.org/x/tools/present
-https://code.google.com/p/go/source/browse/2012/chat.slide?repo=talks
+In case you need something not covered by it, don't worry!
+
+There are tons great Go packages from the community that will help you.
+
+
+* Any questions?
+
+.image webservices/images/SYBLogo.png
+
+.link https://twitter.com/simplifyourB @simplifyourB
+

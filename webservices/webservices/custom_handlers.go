@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"http"
 	"log"
+	"net/http"
 )
 
 type Context struct{}
@@ -19,7 +19,7 @@ func newContext(r *http.Request) *Context { return &Context{} }
 // START_CUSTOM_HANDLER OMIT
 type MyHandlerFunc func(http.ResponseWriter, *http.Request, *Context) error // HL
 
-func HandlerAdapter(f HandlerFunc) httptreemux.HandlerFunc {
+func WrapHandler(f HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer panicHandler(w, r) // Catch any panics that could happen in the hanlder
 
@@ -41,19 +41,40 @@ func HandlerAdapter(f HandlerFunc) httptreemux.HandlerFunc {
 
 // END_CUSTOM_HANDLER OMIT
 
+// START_HTTPERR OMIT
+type HTTPError struct {
+	Code    int
+	Message string
+}
+
+func NewHTTPError(code int, message string) *HTTPError {
+	if message == "" {
+		message = http.StatusText(code)
+	}
+	return &HTTPError{Code: code, Message: message}
+}
+
+func (e HTTPError) Error() string {
+	return fmt.Sprintf("HTTP %d: %s", e.Code, e.Message)
+}
+
+// END_HTTPERR OMIT
+
 // START_MAIN OMIT
+
+var ErrMethodNotAllowed = NewHTTPError(405, "") // HL
+
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/checkout", HandlerAdapter(checkoutHandler))
+	mux.HandleFunc("/checkout", WrapHandler(checkoutHandler)) // HL
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
 func checkoutHandler(w http.ResponseWriter, r *http.Request, ctx *Context) error {
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return ErrMethodNotAllowed // HL
 	}
-
-	ret := map[string]float64{"total": total}
+	ret := map[string]float64{"total": 545.0}
 	return writeJSON(w, 200, ret) // HL
 }
 

@@ -51,9 +51,9 @@ var html = `
           </tr>
         </thead>
         <tbody>
-        {{range $f := .Files}}
+        {{range $ID, $f := .Files}}
           <tr>
-            <td>{{$f.ID}}</td>
+            <td>{{$ID}}</td>
             <td>{{$f.Title}}</td>
             <td>{{$f.UploadTimeString }}</td>
             <td><a href="/download/{{$f.ID}}">download</a></td>

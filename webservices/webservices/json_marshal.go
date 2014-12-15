@@ -42,8 +42,8 @@ var langs = []struct {
 	WebFriendliness rate   `json:"webFriendliness"`
 	Performance     rate   `json:"performance"`
 }{
-	{"C", 1972, true, 0, 5},
-	{"C++", 1983, true, 0, 5},
+	{"C", 1972, true, 1, 5},
+	{"C++", 1983, true, 2, 5},
 	{"Python", 1991, false, 4, 3},
 	{"Go", 2009, true, 5, 4},
 	{"Rust", 2012, true, 4, 5},
