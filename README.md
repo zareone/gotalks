@@ -12,7 +12,7 @@ Meanwhile, you can clone the repo and serve them from your machine. It's really 
 1. [Install Go](http://golang.org/doc/install) for your platform if needed.
 
 2. Install the *Present* tool: 
-    `$ go get golang.org/x/tools/present`
+    `$ go get golang.org/x/tools/cmd/present`
 
 3. Clone this repo
     `$ git clone https://github.com/zareone/gotalks.git`
