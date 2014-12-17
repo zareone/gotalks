@@ -8,6 +8,9 @@ ADD . /slides
 
 # setup service
 WORKDIR /slides
+
 EXPOSE 3999
+EXPOSE 8080
+
 ENTRYPOINT ["/go/bin/present"]
 CMD ["-http=:3999"]
