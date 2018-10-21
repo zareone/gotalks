@@ -1,10 +1,12 @@
-FROM golang:1.4
+FROM golang:1.11
 
 # install present tool
 RUN go get golang.org/x/tools/cmd/present
 
 # add slides 
-ADD . /slides
+# ADD . /slides
+
+VOLUME /slides
 
 # setup service
 WORKDIR /slides

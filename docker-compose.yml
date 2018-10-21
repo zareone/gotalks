@@ -1,0 +1,12 @@
+version: '2.1'
+
+services:
+  present:
+    build:
+      context: ./
+    volumes:
+      - ./:/slides
+    ports: 
+      - 3999:3999
+      - 8080:8080
+    command: ["-http=:3999",  "-orighost=localhost" , "-notes"]
