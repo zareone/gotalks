@@ -1,0 +1,511 @@
+Introducción a Go
+25 de Octubre, 2018
+Tags: golang, language, intro, programming, http, web, services, basic
+
+Daniel Blanco
+Your New Self S.L.
+@zareone
+
+*  
+
+.image assets/Go-Logo_Black.png 300 _
+
+Contenidos
+
+- Go: introducción al lenguaje
+- Comparativa con PHP
+- Go: conceptos prácticos
+
+
+* Go: introducción al lenguaje
+
+* ¿Qué es Go?
+
+- Lenguaje de programación 
+- Inspirado en C 
+- Compilado
+- Tipado estático
+- Memoria gestionada (Garbage Collector)
+- Código Abierto
+- Desarrollado por Google
+- Modelo de concurrencia basado en [[https://en.wikipedia.org/wiki/Communicating_sequential_processes][CSP (Communicating Sequential Processes)]]
+
+* ¿Quiénes fueron sus creadores?
+
+- [[https://www.computerhope.com/people/robert_griesemer.htm][Robert Griesemer]] (Java HotSpot Compiler, Google V8 JS Engine)
+- [[https://en.wikipedia.org/wiki/Rob_Pike][Rob Pike]] (AT&T Bell Labs, Plan 9 OS, UTF-8)
+- [[https://en.wikipedia.org/wiki/Ken_Thompson][Ken Thomson]] (lenguaje B, UNIX)
+
+.image assets/GoCreators.png 280 _
+
+* ¿Por qué fue creado?
+
+El lenguaje Go nace de la frustración de sus creadores con los lenguajes y entornos existentes.
+
+Según ellos, con los lenguajes existentes, se ha de elegir entre:
+
+- Facilidad de programación
+- Eficiencia de compilación
+- Eficiencia de ejecución
+
+Go fue diseñado con la intención de satisfacer estas tres áreas.
+
+* Breve historia
+
+* 2007
+
+Durante las largas esperas entre compilaciones del código (C++), Griesemer, Pike y Thomson discuten sobre un futurible lenguaje y esbozan las bases del lenguaje en la pizarra.
+
+.image assets/xkcd-compiling.png 350 _
+
+* 2008
+
+En enero, Ken Thomson comienza a trabajar en el compilador de Go, que incialmente produce código C (¿transpilador?).
+
+A mediados de año, el desarrollo del lenguaje se había convertido en un proyecto a tiempo completo.
+
+A finales de año, Russ Cox entra en el proyecto, ayudando al lenguaje y sus librerías a transitar de prototipo a realidad.
+
+* 2009 
+
+Google anuncia públicamente el proyecto el 10 de noviembre, liberando su código fuente.
+
+Múltiples miembros de la comunidad colaboran desde este momento en su diseño y desarrollo.
+
+* 2012
+
+Se libera la versión 1.0 del lenguaje
+
+Compromiso de compatibilidad: 
+
+"Los programas creados para una versión 1.x del lenguaje 
+continuarán compilando y ejecutándose correctamente, 
+sin necesidad de cambios, bajo futuras versiones 1.x"
+
+* Evolución del lenguaje
+
+.image assets/GoogleTrendsGolang.png 450 _
+
+.caption Google Trends: evolución de las búsquedas del término "golang" desde octubre de 2012
+
+* Popularidad
+
+El lenguaje ha tenido una rápida adopción desde su versión 1.0, principalmente en proyectos relacionados con infraestructuras y servicios de red.
+
+Su popularidad crece rápidamente, aunque eso no sea indicador de la calidad de un lenguaje.
+
+[[https://madnight.github.io/githut/#/pull_requests/2018/3][#04 - GitHut]]
+[[https://www.hntrends.com/2018/apr-golang-jumps-into-top-10.html][#09 - HN Hiring Trends]]
+[[https://www.tiobe.com/tiobe-index/][#12 - TIOBE]]   
+[[http://pypl.github.io/PYPL.html][#17 - PYPL]]
+
+.caption Datos recogidos a fecha de 10 de octubre de 2018
+
+* Proyectos desarrollados en Go
+
+- Docker 
+- Kubernetes
+- Packer
+- Terraform
+- Consul
+- CoreOS Etcd / Fleet
+- InfluxDB
+
+* Proyectos desarrollados en Go
+
+- Syncthing
+- SourceGraph
+- Prometheus
+- Traefik
+- TiDB
+- Caddy HTTP server
+
+* Compañías usando Go en producción
+
+- Google
+- DropBox
+- Netflix
+- Cloudflare
+- Soundcloud 
+- Uber 
+- Cabify
+
+* Compañías usando Go en producción
+
+- Bitly
+- HashiCorp
+- BBC 
+- The New York Times
+- Apple
+- Twitter
+- eBay
+
+* Puntos fuertes
+
+- Lenguaje simple, fácil de aprender
+- Concurrencia fácil con goroutines y channels
+- Gestión de memoria por el runtime (garbage collection)
+- Plataforma de testing integrada en la librería estándar
+- Cero dependencias: compilación a binario con linkado estático
+
+* Puntos fuertes
+
+- Tipado estático, que evita muchos errores en tiempo de ejecución
+- Alto rendimiento en ejecución. Bajo consumo de memoria y tiempo de procesador
+- Tiempos de compilación muy bajos, debido a la simplicidad del lenguaje, y optimización del compilador
+- Librería estándar muy completa (HTTP, WebSockets, SMTP, math, fechas, gestión de ficheros, criptografía, codificación JSON / XML...)
+
+* Puntos débiles y críticas
+
+La mayoría de críticas están relacionadas con la excesiva simplicidad de su sitema de tipos, que no incluye conceptos como:
+
+- Enums
+- Tipos genéricos (templates / generics)
+- Herencia 
+- Inmutabilidad
+- Union Types
+- Macros
+- Tuplas
+- Pattern matching / destructuring
+
+* Puntos débiles y críticas
+
+De estas omisiones, la más acusada es la falta de "generics", y todo apunta a que en la versión 2.0 del lenguaje se añadirán de alguna forma.
+
+Por supuesto, todas estas funcionalidades añaden complejidad y tiempo de compilación, y en su mayoría han sido excluídas por razones de diseño.
+
+Otra crítica común es la verbosidad necesaria en la gestión de errores. El patrón: 
+
+    if err != nil {
+        return err
+    }
+
+o alguna de sus variaciones, es omnipresente en el código Go.
+
+También se ha hablado de una mejora en este aspecto de cara a la versión 2.
+
+* OK, muy interesante, pero... ¡Veamos qué pinta tiene!
+
+.image assets/coder.gif 400 _
+
+* Un servidor HTTP 
+
+.play part1/http-echo/http-echo.go
+
+Resultado: [[http://localhost:8080]]
+
+* Un servidor HTTP (comentado)
+
+.code part1/http-echo-commented/http-echo.go
+
+* Un vistazo al lenguaje
+
+* Tipos básicos
+
+Booleanos
+
+    bool    booleano (true, false)
+
+Cadenas de caracteres
+
+    string    cadena de caracteres de longitud variable    
+
+Numéricos
+
+    int                          entero, dependiente de la arquitectura (normalmente 32 o 64 bit)
+    int8 int16 int32 int64       enteros con tamaño explícito
+    uint                         entero sin signo, dependiente de la arquitectura
+    uint8 uint16 uint32 uint64   enteros sin signo, con tamaño explícito
+    float32 float64              números de coma flotante. No existe "float" (sin tamaño explícito)
+    complex64 complex128         números complejos (a + bi)
+
+    byte                         alias de uint8
+    rune                         alias de int32. Representa un "carácter" Unicode (code point)
+
+    uintptr                      puntero. Dependiente de la arquitectura. Raramente usado (unsafe)
+
+* Tipos básicos
+
+.play part1/basic-types/basic-types.go
+
+
+* Valor por defecto (zero value)
+
+Cuando se declara una variable del tipo que sea, y no se le asigna un valor, ésta contiene un valor "cero".
+
+Esto contrasta con otros lenguajes compilados, como C o C++ que podrían contener datos "basura", en ciertos casos.
+
+Los valores por defecto son:
+
+- Tipos numéricos: 0
+- Booleanos: false
+- Cadenas de caracteres: "" (cadena vacía)
+
+* Conversión de tipo
+
+En Go, no existe conversión implícita de tipos.
+
+¿Qué pasará si intentamos asignar un valor *int* a una variable *uint*? 
+
+.play part1/type-conversion-error/error.go /START/,/END/
+
+* Conversión de tipo
+
+Como hemos visto, el compilador se niega a compilar el programa.
+
+Se ha de hacer explícitamente como sigue: 
+
+    var myInt = 8
+    var myUnsignedInt uint
+    myUnsignedInt = uint(myInt) // conversión explícita
+
+O de forma más breve: 
+
+    myInt := 8
+    myUnsignedInt := uint(myInt) // conversión explícita, e inferencia de tipo
+
+* Conversión de tipo
+
+Algunas conversiones, como de int a string o viceversa, se han de realizar mediante funciones especiales.
+
+En este caso, usamos `strconv.Itoa()` (base 10 int to alphanum) para convertir correctamente.
+
+.play part1/type-conversion-string/type-conversion-string.go /START/,/END/
+
+* Structs 
+
+Los structs son estructuras de datos definidas por el usuario. 
+
+Su representación en memoria sigue el orden en el que se definen en el struct.
+
+    type User struct {
+        ID     uint
+        Name   string
+        Score  float32
+    }
+
+    user := User{ID: 1, Name : "Bartolo"}
+    user.Score = 32.4
+
+* Arrays
+
+Un array es una colección de valores, *de* *tamaño* *fijo*, cuyos elementos se almacenan secuencialmente en memoria. 
+
+    var weekDays [7]string
+
+    weekDays[0] = "Monday" 
+
+    fmt.Println(weekDays[0]) // Monday
+    fmt.Println(weekDays[1]) // "" (cadena vacía)
+    fmt.Println(weekDays[7]) // invalid array index 7 (out of bounds for 7-element array)
+
+Los arrays no se suelen utilizar directamente, sino indirectamente al utilizar slices.
+
+* Slices
+
+Los slices son vistas de tamaño variable que usan internamente un array para almacenar sus elementos. 
+
+Cuando al añadir un elemento al slice se superaría la capacidad del array subyaciente, se crea otro de mayor capacidad, y se copian todos los elementos a este.
+
+Podemos crear otros slices a partir del array base usando la notación `slice[start:finish]` (intervalo semiabierto).
+
+.play part1/slice-cap-len/slice-cap-len.go /START/,/END/
+
+* Mapas
+
+Un mapa (diccionario, hash table) es una estructura que relaciona claves con valores. 
+
+Los mapas ofrecen acceso aleatorio, y están optimizados para recuperar, añadir o eliminiar datos en ellos.
+
+Para las claves, se puede utilizar cualquier tipo comparable (string, int, puntero...)
+
+Para los valores, cualquier tipo puede ser utilizado.
+
+    var cityTemperature map[string]float
+
+* Mapas: inicialización
+
+A diferencia de los arrays y slices, los mapas se han de inicializar antes de ser utilizados.
+
+El intento de insertar un valor en un mapa no inicializado, supondrá un panic en tiempo de ejecución.
+
+    cityTemperature["Barcelona"] = 32.4 // panic: assignment to entry in nil map
+
+Existen dos maneras de inicializar el mapa:
+
+    myMap := make(map[string]float32)  // make()
+    myOtherMap := map[string]float32{} // notación literal
+
+* Mapas: operaciones
+
+.play part1/map-ops/map-ops.go /START/,/END/
+
+
+* Punteros
+
+Un puntero es una variable (`uintptr`) que almacena la dirección de memoria de un valor.
+
+El tipo `*T` representa un puntero a un valor `T`. Su valor cero es `nil` (null).
+
+Hay dos operadores relacionados con punteros: 
+
+- _&_  _(address_of)_ Devuelve la dirección de memoria de una variable
+- _*_  _(value_of)_   Devuelve el valor residente en la dirección de un puntero
+
+    var u *User          // u puede almacenar punteros a User, pero está vacío (nil) 
+    user := User{}       // user contiene un valor User
+    userAddr := &User{}  // userAddr contiene la dirección a un valor User
+    userVal := *userAddr // userVal contiene el valor almacenado en la dirección userAddr
+
+
+
+* Punteros: referencias
+
+En Go, todas las asignaciones se realizan copiando el valor de la variable, incluído el paso de parámetros a funciones.
+
+Un uso de los punteros es poder modificar un valor desde una referencia al mismo.
+
+.play part1/pointers/pointers.go /START/,/END/
+
+* Punteros: opcionalidad
+
+Otro de los usos de los punteros, es transmitir el concepto de opcionalidad: que un valor pueda no estar presente.
+
+    func MySQLConnect(host, user, pass string) (*Connection, error) {
+        if !hostReachable(host) {
+            return nil, fmt.Errorf("mysql connect: host can not be reached: %s", host))
+        }
+        
+        conn := newConnection(host, user, pass)
+        return conn, nil
+    }
+
+* Tipos definidos por el usuario
+
+En Go, podemos crear nuestros propios tipos, usando los existentes en el lenguaje como base.
+
+    type id        uint64
+    type emailAddr string
+    type name      string
+    type active    bool
+    type tags      []string
+
+    type user struct {
+        id        id
+        email     emailAddr
+        firstName name
+        active    active
+        interests tags
+    }
+
+Más adelante veremos las posibilidades que esto añade, al combiarse con otras funcionalidades.
+
+* Funciones
+
+Como era de esperar, existen funciones en Go. 
+
+    func add(x, y int) int {
+        return x + y 
+    }
+
+    sum := add(10, 20) 
+
+Una función puede retornar cero, uno, o más valores:
+
+    func splitEmail(email string) (string, string, error) {
+        parts := strings.Split(email, "@")
+        if len(parts) != 2 {
+            return "", "", errors.New("invalid email")
+        }
+        return parts[0], parts[1], nil
+    }
+
+* Funciones
+
+Las funciones son tipos como otro cualquiera, pudiendo almacenarse en variables,  pasarse como parámetro o definir tipos a partir de la firma de una función:
+
+    type userFormatter func(u user) string
+
+    func displayUsers(users []user, formatter userFormatter) {
+        for _, user := range users {
+            fmt.Println(formatter(user))
+        }
+    }
+
+    formatFunc := func(u user) string { 
+        return fmt.Sprintf("Name: %s, Age: %d", u.name, u.age)
+    }
+    displayUsers(users, formatFunc)
+
+
+* Funciones variádicas
+
+Go soporta funciones variádicas. 
+
+El último (o único) parámetro de una función puede adoptar la forma "var ...type"
+
+Dentro de la función el parámetro variádico se comporta como un slice del tipo correspondiente.
+
+    func sum(nums ...int) int {
+        total := 0
+        for _, num := range nums {
+            total += num
+        }
+        return total
+    }
+
+    total := sum(65, 43, 43) 
+    nums := []int{234, 232, 322}
+    total2 := sum(nums...) // "desempaquetado" de slice en parámetros individuales
+
+* Funciones: closures
+
+Las funciones en Go pueden comportarse como _closures_, es decir, acceder a variables fuera del cuerpo de las mismas.
+
+.play part1/closures/closures.go /START/,/END/
+
+* Métodos
+
+Go dispone del concepto de método: una función vinculada a un tipo concreto. 
+
+.play part1/methods/methods.go /START/,/END/
+
+Para invocar un método, se utiliza el operador "." valor.metodo()
+
+* Métodos
+
+En realidad, un método no es más que un poco de "syntactic sugar" por parte del compilador. 
+
+El ejemplo anterior es equivalente a una función, cuyo primer parámetro es un valor de tipo email: 
+
+    func email_validate(e email) error {
+        ...
+    }
+
+Y el compilador de Go cambia
+
+    myMail.validate()
+
+por
+
+    email_validate(myMail)
+
+
+* 
+
+- Flow control
+- Paquetes / visibilidad
+- Interfaces
+
+* Conceptos Avanzados
+
+- Goroutines
+- Channels
+- Reflection
+- Unsafe (solo mencionarlo)
+
+
+
+
+
+
